@@ -1,0 +1,30 @@
+# Local PostgreSQL for TourEasy.
+#   Start:  docker compose up -d
+#   Stop:   docker compose down        (data is kept in the "postgres-data" volume)
+#   Reset:  docker compose down -v     (deletes all data)
+#
+# Credentials match DATABASE_URL in .env:
+#   postgresql+asyncpg://toureasy:toureasy@localhost:5432/toureasy
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: toureasy-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: toureasy
+      POSTGRES_PASSWORD: toureasy
+      POSTGRES_DB: toureasy
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U toureasy -d toureasy"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
